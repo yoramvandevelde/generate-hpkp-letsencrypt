@@ -28,7 +28,7 @@ if [ ! -f "${DOMAIN}.ed.csr" ]; then
     chmod 0600 ${DOMAIN}.ec.key
 fi
 
-# Create hashes for 
+# Generate public keys with the generated CSR's and create hashes with those
 HASH1=$(openssl req -pubkey < $DOMAIN.rsa.csr | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64)
 HASH2=$(openssl req -pubkey < $DOMAIN.ec.csr | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64)
 
