@@ -4,11 +4,16 @@
 # - https://scotthelme.co.uk/hpkp-http-public-key-pinning/
 # - https://ithenrik.com/blog/posts/activating-http-public-key-pinning-hpkp-on-lets-encrypt
 
-DOMAIN=$1
+if [ ! -z $1 ]; then
+    DOMAIN=$1
+else
+    echo "No domain specified. Exiting."
+    exit -1
+fi
 
 # check if keys are already present in current directory
 if [ ! -f "${DOMAIN}.rsa.key" ]; then
-    openssl req \ 
+    openssl req \
         -nodes \
         -sha256 \
         -newkey rsa:4096 \
@@ -36,8 +41,8 @@ HASH2=$(openssl req -pubkey < $DOMAIN.ec.csr | openssl pkey -pubin -outform der 
 HASH3=$(curl -s -q https://letsencrypt.org/certs/lets-encrypt-x4-cross-signed.pem | openssl x509 -pubkey | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64)
 HASH4=$(curl -s -q https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem | openssl x509 -pubkey | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64)
 
-# and for their public root cert, aswel
+# and for their public root cert, as well.
 HASH5=$(curl -s -q https://letsencrypt.org/certs/isrgrootx1.pem | openssl x509 -pubkey | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64)
 
-# Echo out
+# Echo out the add_header string to paste in your Nginx configuration. The max-age is 60 seconds for testing. 
 echo "add_header Public-Key-Pins 'pin-sha256=\"$HASH1\"; pin-sha256=\"$HASH2\"; pin-sha256=\"$HASH3\"; pin-sha256=\"$HASH4\"; pin-sha256=\"$HASH5\"; max-age=60;';"
