@@ -11,6 +11,13 @@ else
     exit -1
 fi
 
+# set a sane environment for generating certificates:
+#   -e: fail on any non-zero status
+#   -u: treat unset variables as an error when subsituting
+#   -f: disable globbing
+#   -o pipefail: fail if any piped commands fail even if main command return 0 status
+set -euf -o pipefail
+
 # check if keys are already present in current directory
 if [ ! -f "${DOMAIN}.rsa.key" ]; then
     openssl req \
